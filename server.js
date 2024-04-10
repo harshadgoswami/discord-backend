@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path");
 require("dotenv").config();
 
 const socketServer = require("./socketServer");
@@ -20,6 +21,18 @@ app.use("/api/friend-invitation", friendInvitationRoutes);
 
 const server = http.createServer(app);
 socketServer.registerSocketServer(server);
+
+// Serve static files from the 'build' directory
+app.use(
+  express.static(path.join(__dirname, "..", "discord-frontend", "build"))
+);
+
+// Catch-all route to serve the React app
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "..", "discord-frontend", "build", "index.html")
+  );
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
